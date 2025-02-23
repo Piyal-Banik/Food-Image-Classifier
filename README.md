@@ -25,7 +25,7 @@ This project is a **Deep Learning-based Food Image Classifier** built using **Py
 📂 models/
 ├── model.pth
 📂 notebooks/
-├── run_pipeline.py
+├── run_pipeline.ipynb
 📂 src/
 ├── data_download.py
 ├── data_setup.py
@@ -110,3 +110,23 @@ image_path = "path/to/image.jpg"
 prediction = predict_image(model, image_path)
 print(f"Predicted class: {prediction}")
 ```
+
+## 📊 Results and Evaluation
+
+The model was trained for **5 epochs** on the dataset. Below are the recorded training and testing metrics:
+
+### Training Progress
+
+| Epoch | Train Loss | Train Accuracy | Test Loss | Test Accuracy|
+|-------|-----------|---------------|-----------|--------------|
+| 1     | 0.6528    | 80.47%        | 0.4021    | 89.77%       | 
+| 2     | 0.3343    | 84.77%        | 0.6698    | 88.73%       |
+| 3     | 0.1721    | 87.11%        | 0.5694    | 91.76%       |
+| 4     | 0.1289    | 97.66%        | 0.3296    | 91.86%       |
+| 5     | 0.5630    | 85.94%        | 0.2259    | 92.80%       |
+
+### 🔹 Key Observations:
+- **Test Accuracy Improved Over Epochs**: The best test accuracy of **92.80%** was achieved at **Epoch 5**.
+- **Model Checkpointing**: The model was saved whenever a new best test accuracy was achieved.
+- **Overfitting Check**: While the training accuracy reached **97.66% at Epoch 4**, test accuracy increased marginally from **91.86% to 92.80%**, suggesting potential overfitting.
+- **Final Model Saved**: The final trained model is stored in `models/model.pth`.
