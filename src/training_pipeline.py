@@ -1,10 +1,7 @@
-"""
-Contains functions for training and testing a PyTorch model.
-"""
-
 import torch
 from tqdm.auto import tqdm
 from typing import Dict, List, Tuple
+import utils
 
 def train_step(model: torch.nn.Module, 
                dataloader: torch.utils.data.DataLoader, 
@@ -106,6 +103,7 @@ def train(model: torch.nn.Module,
           optimizer: torch.optim.Optimizer,
           loss_fn: torch.nn.Module,
           epochs: int,
+          model_name: str,
           device: torch.device) -> Dict[str, List]:
     """
     Trains and evaluates the model for a given number of epochs.
@@ -117,6 +115,7 @@ def train(model: torch.nn.Module,
         optimizer (torch.optim.Optimizer): Optimizer for updating model parameters.
         loss_fn (torch.nn.Module): Loss function.
         epochs (int): Number of training epochs.
+        model_name (str): Name of the model to save on directory.
         device (torch.device): Device to run the training (CPU/GPU).
 
     Returns:
@@ -131,8 +130,9 @@ def train(model: torch.nn.Module,
         "test_acc": []
     }
 
+    best_acc = 0.0
     # Loop over the specified number of epochs
-    for epoch in tqdm(range(epochs)):
+    for epoch in tqdm(range(epochs), desc="Training Progress"):
         # Perform one training step
         train_loss, train_acc = train_step(
             model=model,
@@ -158,6 +158,14 @@ def train(model: torch.nn.Module,
             f"test_loss: {test_loss:.4f} | "
             f"test_acc: {test_acc:.4f}"
         )
+
+        if test_acc > best_acc:
+            best_acc = test_acc
+            # Save the trained model
+            utils.save_model(model=model,
+                            target_dir="models",
+                            model_name=f"{model_name}.pth")
+            print(f"New best model saved at epoch {epoch+1} with test_acc={test_acc:.4f}")
 
         # Store results in the dictionary
         results["train_loss"].append(train_loss)

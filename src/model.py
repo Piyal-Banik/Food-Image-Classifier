@@ -25,23 +25,17 @@ class FoodImageClassifier(nn.Module):
         weights = models.EfficientNet_B0_Weights.DEFAULT
         self.model = models.efficientnet_b0(weights=weights)
 
-        
-        if fine_tune:
-            print('[INFO]: Fine-tuning all layers...')
-            
-            for params in self.model.parameters():
-                params.requires_grad=True
-        elif not fine_tune:
-            # Freeze feature extractor layers if fine-tuning is disabled
-            print('[INFO]: Freezing features layers...')
-          
+        # Fine-tune logic
+        if not fine_tune:
+            print("[INFO]: Freezing feature extractor layers...")
             for param in self.model.features.parameters():
-                param.requires_grad = False  # Prevents gradient updates for these layers
+                param.requires_grad = False  # Freezes entire feature extractor
 
         # Modify classifier head to match the number of classes
+        in_features = self.model.classifier[1].in_features  # Get input size of original classifier
         self.model.classifier = nn.Sequential(
             nn.Dropout(p=0.2, inplace=True),
-            nn.Linear(in_features=1280, out_features=num_classes, bias=True)  # Custom output layer
+            nn.Linear(in_features=in_features, out_features=num_classes, bias=True)  # Custom output layer
         )
 
     def forward(self, X: torch.Tensor) -> torch.Tensor:
@@ -49,12 +43,9 @@ class FoodImageClassifier(nn.Module):
         Forward pass of the model.
         
         Args:
-            X (torch.Tensor): Input batch of images (B, C, H, W), where:
-                              - B = batch size
-                              - C = number of channels
-                              - H, W = image height & width
+            X (torch.Tensor): Input batch of images (B, C, H, W).
         
         Returns:
-            torch.Tensor: Predicted class logits for each image in the batch.
+            torch.Tensor: Predicted class logits.
         """
         return self.model(X)
